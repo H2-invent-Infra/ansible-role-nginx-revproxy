@@ -14,8 +14,14 @@ nginx_revproxy_sites:                                         # List of sites to
     hsts_max_age: 63072000                                    # Set HSTS header with max-age defined
     letsencrypt: false                                        # Set to True if you want use letsencrypt
     letsencrypt_email: ""                                     # Set email for letencrypt cert
+    
 
 nginx_revproxy_certbot_auto: false
+
+nginx_upload_custom_ssl: false
+nginx_upload_ssl_certiciate: 
+  - name: example.com
+    crt: "{{lookup('ansible.builtin.file', '/etc/foo.txt') }}"
 
 # Remove WebRoot Sites
 nginx_revproxy_remove_webroot_sites: true

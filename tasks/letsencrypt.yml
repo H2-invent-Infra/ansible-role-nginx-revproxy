@@ -8,7 +8,6 @@
   when: nginx_revproxy_certbot_auto
   tags:
     - lesencrypt
-    - nginxrevproxy
 
 - name: Install certbot from repository
   apt:
@@ -17,7 +16,6 @@
   when: not nginx_revproxy_certbot_auto
   tags:
     - lesencrypt
-    - nginxrevproxy
 
 - name: Get Active Sites
   command: ls -1 /etc/nginx/sites-enabled/
@@ -26,7 +24,6 @@
   register: active
   tags:
     - lesencrypt
-    - nginxrevproxy
 
 - name: Enable sites for ACME protocol
   block:
@@ -69,7 +66,6 @@
     - nginxinstalled is success
   tags:
     - lesencrypt
-    - nginxrevproxy
 
 - name: Generate certs (first time)
   command: |
@@ -83,7 +79,6 @@
   when: item.value.letsencrypt | default(False)
   tags:
     - lesencrypt
-    - nginxrevproxy
 
 - name: Update Site Config
   template:
@@ -98,7 +93,6 @@
     - item.value.letsencrypt | default(False)
   tags:
     - lesencrypt
-    - nginxrevproxy
 
 - name: Insert cert-bot renew in crontab
   cron:
@@ -110,4 +104,3 @@ renew --post-hook \"systemctl reload nginx\" >> /var/log/letsencrypt/letsencrypt
     weekday: "1"
   tags:
     - lesencrypt
-    - nginxrevproxy
