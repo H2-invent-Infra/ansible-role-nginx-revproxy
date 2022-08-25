@@ -1,19 +1,21 @@
 - name: Copy Custom-SSL Certificate
   copy: 
     content: "{{ item.crt }}"
-    dest: "/etc/ssl/certs{{ item.name }}.crt"
+    dest: "/etc/ssl/certs/{{ item.name }}.crt"
     owner: root
     group: root
   with_items: "{{ nginx_revproxy_upload_ssl_certiciate }}"
+  no_log: true
   notify:
     - Reload Nginx
 
 - name: Copy Custom-SSL Key
   copy: 
     content: "{{ item.key }}"
-    dest: "/etc/ssl/certs{{ item.name }}.key"
+    dest: "/etc/ssl/private/{{ item.name }}.key"
     owner: root
     group: root
   with_items: "{{ nginx_revproxy_upload_ssl_certiciate }}"
+  no_log: true
   notify:
     - Reload Nginx
