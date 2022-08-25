@@ -6,46 +6,18 @@
       - nginx
       - ssl-cert
     state: present
-  register:
-    nginxinstalled
-  delay: 10
-  retries: 12
-  until: nginxinstalled is successful
   tags:
     - packages
 
-- name: Install python-passlib for Python 3 hosts
+- name: Install python-passlib
   apt:
     name:
       - "python3-passlib"
     state: present
-  register:
-    result
-  delay: 10
-  retries: 12
-  until: result is successful
   tags:
     - packages
-  when:
-    - ansible_python['version']['major'] == 3
-
-- name: Install python-passlib for Python 2 hosts
-  apt:
-    name:
-      - "python-passlib"
-    state: present
-  register:
-    result
-  delay: 10
-  retries: 12
-  until: result is successful
-  tags:
-    - packages
-  when:
-    - ansible_python['version']['major'] == 2
 
 - include_tasks: ssl-cert.yml
-  when: nginx_upload_custom_ssl
   tags:
     - custom-ssl
 
@@ -70,7 +42,6 @@
     mode: 0640
   with_dict: "{{ nginx_revproxy_sites }}"
   when:
-    - nginxinstalled is success
     - item.value.auth is defined
 
 - name: Add Site Config
@@ -81,14 +52,11 @@
     group: root
     mode: 0640
   with_dict: "{{ nginx_revproxy_sites }}"
-  register:
-    siteconfig
   when:
-    - nginxinstalled is success
     - not item.value.ssl | default(True)
     - not item.value.letsencrypt | default(True)
 
-- name: Add Https Site Config
+- name: Add Https Site Config without acme/letsencrpyt
   template:
     src: reverseproxy_ssl.conf.j2
     dest: /etc/nginx/sites-available/{{ item.key }}.conf
@@ -96,20 +64,17 @@
     group: root
     mode: 0640
   with_dict: "{{ nginx_revproxy_sites }}"
-  register:
-    siteconfig
   when:
-    - nginxinstalled is success
     - item.value.ssl | default(False)
     - not item.value.letsencrypt | default(True)
 
-- name: Get Active Sites
+- name: Get all Active Sites
   command: ls -1 /etc/nginx/sites-enabled/
   changed_when: "active.stdout_lines != nginx_revproxy_sites.keys()|sort()"
   check_mode: false
   register: active
 
-- name: De-activate Sites
+- name: De-activate Sites not configurated in the variables
   file:
     path: /etc/nginx/sites-enabled/{{ item }}
     state: absent
@@ -127,7 +92,6 @@
   with_dict: "{{ nginx_revproxy_sites }}"
   notify: Reload Nginx
   when:
-    - siteconfig is success
     - not item.value.letsencrypt | default(True)
     - not ansible_check_mode
 
@@ -140,8 +104,6 @@
     group: www-data
   with_dict: "{{ nginx_revproxy_sites }}"
   notify: Reload Nginx
-  when:
-    - nginxinstalled is success
 
 - name: WebRoot Permissions Sites
   file:
@@ -153,8 +115,6 @@
     recurse: true
   with_dict: "{{ nginx_revproxy_sites }}"
   notify: Reload Nginx
-  when:
-    - nginxinstalled is success
 
 - name: Get WebRoot Sites
   command: ls -1 /var/www/

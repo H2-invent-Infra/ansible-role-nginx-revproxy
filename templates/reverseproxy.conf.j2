@@ -47,8 +47,8 @@ server {
 {% endif %}
    }
 
-   location /.well-known {
-      alias /var/www/{{ item.key }}/.well-known;
+   location /.well-known/acme-challenge {
+      alias /var/www/{{ item.key }}/.well-known/acme-challenge;
    }
 
    access_log /var/log/nginx/{{ item.key }}_access.log;

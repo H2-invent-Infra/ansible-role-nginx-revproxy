@@ -4,7 +4,7 @@
     dest: "/etc/ssl/certs{{ item.name }}.crt"
     owner: root
     group: root
-  with_items: "{{ nginx_upload_ssl_certiciate }}"
+  with_items: "{{ nginx_revproxy_upload_ssl_certiciate }}"
   notify:
     - Reload Nginx
 
@@ -14,6 +14,6 @@
     dest: "/etc/ssl/certs{{ item.name }}.key"
     owner: root
     group: root
-  with_items: "{{ nginx_upload_ssl_certiciate }}"
+  with_items: "{{ nginx_revproxy_upload_ssl_certiciate }}"
   notify:
     - Reload Nginx
