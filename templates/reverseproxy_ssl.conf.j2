@@ -91,8 +91,12 @@ server {
       proxy_set_header X-Forwarded-Ssl on;
       client_max_body_size {{ item.value.client_max_body_size | default('50M') }};
       proxy_read_timeout {{ item.value.proxy_read_timeout | default('300') }};
-      proxy_set_header Upgrade $http_upgrade;
+      proxy_buffer_size 128k;
+      proxy_buffers 4 256k;
+      proxy_busy_buffers_size 256k;
+      proxy_read_timeout 360;
 {% if item.value.conn_upgrade is not defined or item.value.conn_upgrade %}
+      proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection "upgrade";
 {% endif %}
       proxy_set_header Host $http_host;
