@@ -53,19 +53,6 @@
     mode: 0640
   with_dict: "{{ nginx_revproxy_sites }}"
   when:
-    - not item.value.ssl | default(True)
-    - not item.value.letsencrypt | default(True)
-
-- name: Add Https Site Config without acme/letsencrpyt
-  template:
-    src: reverseproxy_ssl.conf.j2
-    dest: /etc/nginx/sites-available/{{ item.key }}.conf
-    owner: root
-    group: root
-    mode: 0640
-  with_dict: "{{ nginx_revproxy_sites }}"
-  when:
-    - item.value.ssl | default(False)
     - not item.value.letsencrypt | default(True)
 
 - name: Get all Active Sites

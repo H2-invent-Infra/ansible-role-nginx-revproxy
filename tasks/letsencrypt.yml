@@ -19,7 +19,7 @@
   block:
     - name: Add Https Site Config
       template:
-        src: reverseproxy_ssl.conf.j2
+        src: reverseproxy.conf.j2
         dest: /etc/nginx/sites-available/{{ item.key }}.conf
         owner: root
         group: root
@@ -71,7 +71,7 @@
 
 - name: Update Site Config
   template:
-    src: reverseproxy_ssl.conf.j2
+    src: reverseproxy.conf.j2
     dest: /etc/nginx/sites-available/{{ item.key }}.conf
     owner: root
     group: root
