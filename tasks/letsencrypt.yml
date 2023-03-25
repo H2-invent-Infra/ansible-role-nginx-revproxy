@@ -65,7 +65,7 @@
     --non-interactive --cert-name {{ item.key }}
     --agree-tos creates=/etc/letsencrypt/live/{{ item.key }}/fullchain.pem
   with_dict: "{{ nginx_revproxy_sites }}"
-  when: item.value.letsencrypt | default(False)
+  when: item.value.letsencrypt | default('false')
   tags:
     - lesencrypt
 
@@ -79,7 +79,7 @@
   with_dict: "{{ nginx_revproxy_sites }}"
   notify: Reload Nginx
   when:
-    - item.value.letsencrypt | default(False)
+    - item.value.letsencrypt | default('false')
   tags:
     - lesencrypt
 
