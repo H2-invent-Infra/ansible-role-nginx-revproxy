@@ -47,7 +47,7 @@ server {
    listen    [::]:{{ item.value.listen_ssl | default(443) }}  ssl http2;
    server_name    {{ item.value.domains | join(' ') }};
 
-{% if not __skip_letsencrypt | default(false) and item.value.letsencrypt is defined and item.value.letsencrypt %}
+{% if nginx_acme_ssl.stat.exists and item.value.letsencrypt is defined and item.value.letsencrypt %}
    ssl_certificate /etc/letsencrypt/live/{{ item.key }}/fullchain.pem;
    ssl_certificate_key /etc/letsencrypt/live/{{ item.key }}/privkey.pem;
 {% else %}
@@ -89,10 +89,6 @@ server {
       proxy_set_header X-Forwarded-Proto $scheme;
       proxy_set_header X-Frame-Options SAMEORIGIN;
       proxy_pass {{ item.value.backend_protocol | default('http') }}://{{ item.key }}_backend;
-{% if item.value.auth is defined %}
-      auth_basic "Restricted Content";
-      auth_basic_user_file /etc/nginx/{{ item.key }}_htpasswd;
-{% endif %}
    }
 
    access_log /var/log/nginx/{{ item.key }}_access.log;

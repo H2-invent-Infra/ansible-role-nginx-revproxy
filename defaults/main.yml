@@ -1,5 +1,4 @@
 ---
-
 nginx_revproxy_sites:                                         # List of sites to reverse proxy
   example.com:                                                # Domain name
     client_max_body_size: "256M"
@@ -13,15 +12,16 @@ nginx_revproxy_sites:                                         # List of sites to
     ssl: true                                                 # Set to True if you want to redirect http to https
     hsts_max_age: 63072000                                    # Set HSTS header with max-age defined
     letsencrypt: false                                        # Set to True if you want use letsencrypt
-    letsencrypt_email: ""                                     # Set email for letencrypt cert
 
-
-nginx_revproxy_upload_ssl_certiciate: []
-#  - name: example.com
-#    crt: "{{lookup('ansible.builtin.file', '/etc/foo.txt') }}"
 
 # Remove WebRoot Sites
 nginx_revproxy_remove_webroot_sites: true
 
 # De-activate Sites
 nginx_revproxy_de_activate_sites: true
+
+# Generate Certificates with Letsencrypt
+# h2_certbot_certs: []
+
+# Upload Custom Certificates from Vault
+# h2_custom_cert_certiciate: []

@@ -1,94 +1,34 @@
----
-
-- name: Install certbot from repository
-  apt:
-    name: "{{ nginx_revproxy_certbot_packages }}"
-    state: present
-  tags:
-    - lesencrypt
-
-- name: Get Active Sites
-  command: ls -1 /etc/nginx/sites-enabled/
-  changed_when: "active.stdout_lines != nginx_revproxy_sites.keys()|sort()"
-  check_mode: false
-  register: active
-  tags:
-    - lesencrypt
-
-- name: Enable sites for ACME protocol
-  block:
-    - name: Add Https Site Config
-      template:
-        src: reverseproxy.conf.j2
-        dest: /etc/nginx/sites-available/{{ item.key }}.conf
-        owner: root
-        group: root
-        mode: 0640
-      with_dict: "{{ nginx_revproxy_sites }}"
-      vars:
-        __skip_letsencrypt: true  # use snakeoil cert on first run
-      register: siteconfig
-      when:
-        - item.value.letsencrypt | default(False)
-        - item.key not in active.stdout_lines
-
-    - name: Enable Site Config
-      file:
-        src: /etc/nginx/sites-available/{{ item.key }}.conf
-        dest: /etc/nginx/sites-enabled/{{ item.key }}
-        state: link
-      with_dict: "{{ nginx_revproxy_sites }}"
-      register: site_enabled
-      when:
-        - siteconfig is success
-        - not ansible_check_mode
-        - item.value.letsencrypt | default(False)
-        - item.key not in active.stdout_lines
-
-    - name: Reload Nginx
-      service:
-        name: nginx
-        state: reloaded
-      when:
-        - site_enabled is success
-  when:
-    - active.changed
-  tags:
-    - lesencrypt
-
-- name: Generate certs (first time)
-  command: |
-    certbot certonly
-    --webroot -w /var/www/{{ item.key }}
-    -d {{ item.value.domains | join(' -d ') }}
-    --email {{ item.value.letsencrypt_email }}
-    --non-interactive --cert-name {{ item.key }}
-    --agree-tos creates=/etc/letsencrypt/live/{{ item.key }}/fullchain.pem
-  with_dict: "{{ nginx_revproxy_sites }}"
-  when: item.value.letsencrypt | default('false')
-  tags:
-    - lesencrypt
-
-- name: Update Site Config
-  template:
-    src: reverseproxy.conf.j2
-    dest: /etc/nginx/sites-available/{{ item.key }}.conf
-    owner: root
-    group: root
-    mode: 0640
+- name: Create WebRoot sites
+  file:
+    dest: /var/www/{{ item.key }}
+    mode: 0775
+    state: directory
+    owner: www-data
+    group: www-data
   with_dict: "{{ nginx_revproxy_sites }}"
   notify: Reload Nginx
-  when:
-    - item.value.letsencrypt | default('false')
-  tags:
-    - lesencrypt
 
-- name: Insert cert-bot renew in crontab
-  cron:
-    name: "cert-bot renew"
-    job: "certbot renew --post-hook \"/bin/systemctl reload nginx\" >> /var/log/letsencrypt/letsencrypt-update.log 2>&1"
-    hour: "3"
-    minute: "30"
-    weekday: "1"
-  tags:
-    - lesencrypt
+- name: Get WebRoot Sites
+  command: ls -1 /var/www/
+  changed_when: "webroot.stdout_lines != nginx_revproxy_sites.keys()|sort()"
+  check_mode: false
+  register: webroot
+
+- name: Remove WebRoot Sites when not in nginx_revproxy_sites
+  file:
+    path: /var/www/{{ item }}/
+    state: absent
+  with_items: "{{ webroot.stdout_lines }}"
+  notify: Reload Nginx
+  when:
+    - item not in nginx_revproxy_sites
+    - nginx_revproxy_remove_webroot_sites
+
+- include_role:
+    name: ansible-role-letsencrypt
+
+- include_tasks: _create_sites.yml
+  when:
+    - item.value.letsencrypt is defined
+    - item.value.letsencrypt 
+  with_dict: "{{ nginx_revproxy_sites }}"
