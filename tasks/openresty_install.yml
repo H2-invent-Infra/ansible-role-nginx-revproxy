@@ -1,0 +1,40 @@
+---
+- name: Create Repo Key Directory
+  file:
+    path: /etc/apt/trusted.gpg.d
+    state: directory
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Download Repo Key
+  get_url:
+    url: "https://openresty.org/package/pubkey.gpg"
+    dest: /etc/apt/trusted.gpg.d/openresty-pubkey.key
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Set openresty repo file for Debian
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/openresty-pubkey.key] http://openresty.org/package/debian {{ ansible_distribution_release }} openresty"
+    state: present
+    filename: openresty-repo
+
+- name: Install Nginx and ssl-cert
+  apt:
+    name:
+      - openresty
+      - ssl-cert
+    state: present
+
+- name: Configure Openresty to use nginx config
+  template:
+    src: openresty_nginx.conf.j2
+    dest: /usr/local/openresty/nginx/conf/nginx.conf
+  notify:
+    - Reload Nginx
+
+- name: Copy OpenResty Lua Files
+  copy:
+    src: resty_lua/
+    dest: /usr/local/openresty/lualib/resty/
+  when: nginx_openresty_copy_lua_files
+  notify:
+    - Reload Nginx

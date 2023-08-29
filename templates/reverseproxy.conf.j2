@@ -72,6 +72,10 @@ server {
    }
 
    location / {
+{% if item.value.lua_action is defined %}
+      {{ item.value.lua_action }}
+{% endif %}
+      
       gzip off;
       proxy_set_header X-Forwarded-Ssl on;
       client_max_body_size {{ item.value.client_max_body_size | default('50M') }};
@@ -79,7 +83,7 @@ server {
       proxy_buffer_size 128k;
       proxy_buffers 4 256k;
       proxy_busy_buffers_size 256k;
-{% if item.value.conn_upgrade is not defined or item.value.conn_upgrade %}
+{% if item.value.conn_upgrade is defined and item.value.conn_upgrade %}
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection "upgrade";
 {% endif %}

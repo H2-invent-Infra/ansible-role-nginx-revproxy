@@ -1,13 +1,6 @@
 ---
 
-- name: Install Nginx and ssl-cert
-  apt:
-    name:
-      - nginx
-      - ssl-cert
-    state: present
-  tags:
-    - packages
+- include_tasks: "{{ nginx_software }}_install.yml"
 
 - name: Install python-passlib
   apt:

@@ -2,15 +2,15 @@
 
 - name: Start Nginx
   service:
-    name: nginx
+    name: "{{ nginx_software }}"
     state: started
 
 - name: Reload Nginx
   service:
-    name: nginx
+    name: "{{ nginx_software }}"
     state: reloaded
 
 - name: Restart Nginx
   service:
-    name: nginx
+    name: "{{ nginx_software }}"
     state: restarted
