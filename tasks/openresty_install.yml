@@ -1,21 +1,13 @@
 ---
-- name: Create Repo Key Directory
-  file:
-    path: /etc/apt/trusted.gpg.d
-    state: directory
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+- include_role:
+    name: ansible-role-apt-repo
+    tasks_from: repo
+  vars:
+    h2_apt_repos:
+      - name: openresty
+        repo: "http://openresty.org/package/debian {{ ansible_distribution_release }} openresty"
+        gpg: https://openresty.org/package/pubkey.gp
 
-- name: Download Repo Key
-  get_url:
-    url: "https://openresty.org/package/pubkey.gpg"
-    dest: /etc/apt/trusted.gpg.d/openresty-pubkey.key
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
-
-- name: Set openresty repo file for Debian
-  apt_repository:
-    repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/openresty-pubkey.key] http://openresty.org/package/debian {{ ansible_distribution_release }} openresty"
-    state: present
-    filename: openresty-repo
 
 - name: Install Nginx and ssl-cert
   apt:
