@@ -6,7 +6,7 @@
     h2_apt_repos:
       - name: openresty
         repo: "http://openresty.org/package/debian {{ ansible_distribution_release }} openresty"
-        gpg: https://openresty.org/package/pubkey.gp
+        gpg: https://openresty.org/package/pubkey.gpg
 
 
 - name: Install Nginx and ssl-cert
@@ -27,6 +27,17 @@
   copy:
     src: resty_lua/
     dest: /usr/local/openresty/lualib/resty/
-  when: nginx_openresty_copy_lua_files
+#  when: nginx_openresty_copy_lua_files
   notify:
     - Reload Nginx
+
+- name: Create NGINX directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: www-data
+    group: www-data
+  with_items:
+    - /etc/nginx/sites-available
+    - /etc/nginx/sites-enabled
+    - /var/log/nginx
