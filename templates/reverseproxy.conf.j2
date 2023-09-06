@@ -36,6 +36,11 @@ server {
       alias /var/www/{{ item.key }}/.well-known/acme-challenge;
    }
 
+   location /check {
+      default_type application/json;
+      return 200 '{"code":"1", "message": "Success"}';
+   }
+
    access_log /var/log/nginx/{{ item.key }}_access.log;
    error_log /var/log/nginx/{{ item.key }}_error.log error;
 
@@ -69,6 +74,11 @@ server {
 
    location /.well-known/acme-challenge {
       alias /var/www/{{ item.key }}/.well-known/acme-challenge;
+   }
+   
+   location /check {
+      default_type application/json;
+      return 200 '{"code":"1", "message": "Success"}';
    }
 
    location / {

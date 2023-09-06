@@ -27,7 +27,7 @@
   copy:
     src: resty_lua/
     dest: /usr/local/openresty/lualib/resty/
-#  when: nginx_openresty_copy_lua_files
+  when: nginx_openresty_copy_lua_files
   notify:
     - Reload Nginx
 
