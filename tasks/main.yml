@@ -31,3 +31,6 @@
 
 - include_tasks: letsencrypt.yml
   when: h2_certbot_certs is defined
+
+- include_tasks: _create_sites.yml
+  with_dict: "{{ nginx_revproxy_sites }}"
