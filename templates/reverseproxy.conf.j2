@@ -112,6 +112,16 @@ server {
    }
 {% endif %}
 
+{% if item.value.locations is defined and item.value.locations | length > 0 %}
+{% for location in item.value.locations %}
+   location {{ location.path }} {
+      {% for header in location.config | default([]) %}
+      {{ config }}
+      {% endfor %}
+   }
+{% endfor %}
+{% endif %}
+
    location / {
 {% if item.value.lua_action is defined %}
       {{ item.value.lua_action }}
