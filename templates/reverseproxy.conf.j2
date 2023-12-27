@@ -62,7 +62,7 @@ server {
 
 # HTTPS Frontend with improved SSL/TLS Settings
 server {
-{% if item.value.listen_ssl is defined and item.value.listen_ssl|length > 1 %}
+{% if item.value.listen_ssl is defined %}
 {% for port in item.value.listen_ssl %}
    listen {{ port }} ssl http2;
    listen [::]:{{ port }} ssl http2;
