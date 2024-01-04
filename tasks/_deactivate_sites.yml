@@ -4,18 +4,13 @@
     state: absent
   notify: Reload Nginx
 
-- name: Get all enabled_sites
-  command: ls -1 /etc/nginx/sites-enabled/
-  changed_when: "enabled_sites.stdout_lines != nginx_revproxy_sites.keys()|sort()"
-  check_mode: false
-  register: enabled_sites
-
-- name: Deactivate Sites not configurated in the variables
+- name: Deactivate all enabled Site
   file:
-    path: /etc/nginx/sites-enabled/{{ item }}
-    state: absent
-  with_items: "{{ enabled_sites.stdout_lines }}"
+    path: /etc/nginx/sites-enabled
+    state: "{{ item }}"
+  with_items:
+    - absent
+    - directory
   notify: Reload Nginx
   when:
-    - item not in nginx_revproxy_sites
     - nginx_revproxy_de_activate_sites

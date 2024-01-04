@@ -1,12 +1,12 @@
-- name: Check if letsencrypt ssl certificate for {{ item.key }} is available
+- name: Check if letsencrypt ssl certificate for {{ item.name }} is available
   stat:
-    path: "/etc/letsencrypt/live/{{ item.key }}/fullchain.pem"
-  register: nginx_acme_ssl
+    path: "{{ item.nginx_ssl_certificate }}"
+  register: nginx_ssl_certificate_state
 
-- name: Add Site Config for {{ item.key }}
+- name: Add Site Config for {{ item.name }}
   template:
     src: reverseproxy.conf.j2
-    dest: /etc/nginx/sites-available/{{ item.key }}.conf
+    dest: /etc/nginx/sites-available/{{ item.name }}.conf
     owner: root
     group: root
     mode: 0640

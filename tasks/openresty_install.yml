@@ -8,7 +8,6 @@
         repo: "http://openresty.org/package/debian {{ ansible_distribution_release }} openresty"
         gpg: https://openresty.org/package/pubkey.gpg
 
-
 - name: Install Nginx and ssl-cert
   apt:
     name:

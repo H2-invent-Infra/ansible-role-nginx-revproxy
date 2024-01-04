@@ -1,34 +1,15 @@
 - name: Create WebRoot sites
   file:
-    dest: /var/www/{{ item.key }}
+    dest: "/var/www/{{ item.name }}"
     mode: 0775
     state: directory
     owner: www-data
     group: www-data
-  with_dict: "{{ nginx_revproxy_sites }}"
+  with_items: "{{ nginx_revproxy_sites }}"
   notify: Reload Nginx
-
-- name: Get WebRoot Sites
-  command: ls -1 /var/www/
-  changed_when: "webroot.stdout_lines != nginx_revproxy_sites.keys()|sort()"
-  check_mode: false
-  register: webroot
-
-- name: Remove WebRoot Sites when not in nginx_revproxy_sites
-  file:
-    path: /var/www/{{ item }}/
-    state: absent
-  with_items: "{{ webroot.stdout_lines }}"
-  notify: Reload Nginx
-  when:
-    - item not in nginx_revproxy_sites
-    - nginx_revproxy_remove_webroot_sites
 
 - include_role:
     name: ansible-role-letsencrypt
 
 - include_tasks: _create_sites.yml
-  when:
-    - item.value.letsencrypt is defined
-    - item.value.letsencrypt 
-  with_dict: "{{ nginx_revproxy_sites }}"
+  with_items: "{{ nginx_revproxy_sites }}"

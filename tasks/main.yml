@@ -2,35 +2,22 @@
 
 - include_tasks: "{{ nginx_software }}_install.yml"
 
-- name: Install python-passlib
-  apt:
-    name:
-      - "python3-passlib"
-    state: present
-  tags:
-    - packages
-
 - include_role: 
     name: ansible-role-custom-cert
   when: h2_custom_cert_certiciate is defined
 
-- include_tasks: _create_sites.yml
-  with_dict: "{{ nginx_revproxy_sites }}"
-
 - include_tasks: _deactivate_sites.yml
+
+- include_tasks: _create_sites.yml
+  with_items: "{{ nginx_revproxy_sites }}"
 
 - name: Enable Site Config
   file:
-    src: /etc/nginx/sites-available/{{ item.key }}.conf
-    dest: /etc/nginx/sites-enabled/{{ item.key }}
+    src: /etc/nginx/sites-available/{{ item.name }}.conf
+    dest: /etc/nginx/sites-enabled/{{ item.name }}
     state: link
-  with_dict: "{{ nginx_revproxy_sites }}"
+  with_items: "{{ nginx_revproxy_sites }}"
   notify: Reload Nginx
-  when:
-    - not ansible_check_mode
 
 - include_tasks: letsencrypt.yml
   when: h2_certbot_certs is defined
-
-- include_tasks: _create_sites.yml
-  with_dict: "{{ nginx_revproxy_sites }}"

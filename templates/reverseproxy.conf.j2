@@ -3,51 +3,28 @@
 # Do NOT modify this file by hand!
 ################################################################################
 
-{% if item.key == "default" %}
-server {
-{% if item.value.listen|length > 1 %}
-{% for port in item.value.listen %}
-   listen {{ port }} default_server;
-{% endfor %}
-{% else %}
-   listen         {{ item.value.listen | default(80) }} default_server;
-   listen    [::]:{{ item.value.listen | default(80) }} default_server;
-{% endif %}
-    server_name _;
-    return        444;
-
-    access_log /var/log/nginx/{{ item.key }}_access.log;
-    error_log /var/log/nginx/{{ item.key }}_error.log error;
-
-}
-
-{% else %}
-upstream {{ item.key }}_backend  {
-{% for upstream in item.value.upstreams %}
+upstream {{ item.name }}_backend  {
+{% for upstream in item.upstreams %}
     server {{upstream.backend_address}}:{{upstream.backend_port}};
 {% endfor %}
 }
 
-{% if item.value.ssl is defined and item.value.ssl %}
 # HTTP Frontend with a redirection to HTTPS
 server {
-{% if item.value.listen is defined and item.value.listen|length > 1 %}
-{% for port in item.value.listen %}
-   listen {{ port }};
-   liste listen    [::]:{{ port }};
+
+{% for port in item.listen | default(['80']) %}
+   listen         {{ port }};
+   listen    [::]:{{ port }};
 {% endfor %}
-{% else %}
-   listen         {{ item.value.listen | default(80) }};
-   listen    [::]:{{ item.value.listen | default(80) }};
-{% endif %}
-   server_name    {{ item.value.domains | join(' ') }};
+
+   server_name    {{ item.domains | join(' ') }};
 
    location / {
-   return         301 https://$server_name$request_uri;
+      return         301 https://$server_name$request_uri;
    }
 
    location /.well-known/acme-challenge {
-      alias /var/www/{{ item.key }}/.well-known/acme-challenge;
+      alias /var/www/{{ item.name }}/.well-known/acme-challenge;
    }
 
    location /check {
@@ -55,99 +32,86 @@ server {
       return 200 '{"code":"1", "message": "Success"}';
    }
 
-   access_log /var/log/nginx/{{ item.key }}_access.log;
-   error_log /var/log/nginx/{{ item.key }}_error.log error;
+   access_log /var/log/nginx/{{ item.name }}_access.log;
+   error_log /var/log/nginx/{{ item.name }}_error.log error;
 
 }
 
 # HTTPS Frontend with improved SSL/TLS Settings
 server {
-{% if item.value.listen_ssl is defined %}
-{% for port in item.value.listen_ssl %}
-   listen {{ port }} ssl http2;
-   listen [::]:{{ port }} ssl http2;
+{% for port in item.listen_ssl | default(['443']) %}
+   listen         {{ port }} ssl http2;
+   listen    [::]:{{ port }} ssl http2;
 {% endfor %}
-{% else %}
-   listen         {{ item.value.listen_ssl | default(443) }}  ssl http2;
-   listen    [::]:{{ item.value.listen_ssl | default(443) }}  ssl http2;
-{% endif %}
-   server_name    {{ item.value.domains | join(' ') }};
 
-{% if nginx_acme_ssl.stat.exists and item.value.letsencrypt is defined and item.value.letsencrypt %}
-   ssl_certificate /etc/letsencrypt/live/{{ item.key }}/fullchain.pem;
-   ssl_certificate_key /etc/letsencrypt/live/{{ item.key }}/privkey.pem;
+   server_name    {{ item.domains | join(' ') }};
+
+{% if nginx_ssl_certificate_state.stat.exists %}
+   ssl_certificate {{ item.nginx_ssl_certificate }};
+   ssl_certificate_key {{ item.nginx_ssl_certificate_key }};
 {% else %}
-   ssl_certificate {{ item.value.ssl_certificate | default('/etc/ssl/certs/ssl-cert-snakeoil.pem') }};
-   ssl_certificate_key {{ item.value.ssl_certificate_key | default ('/etc/ssl/private/ssl-cert-snakeoil.key') }};
+   ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
+   ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
 {% endif %}
    ssl_session_timeout 5m;
    ssl_protocols TLSv1.1 TLSv1.2;
    ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
    ssl_prefer_server_ciphers on;
    ssl_session_cache shared:SSL:10m;
-{% else %}
-# HTTP Frontend for Basic Proxy
-server {
-   listen         {{ item.value.listen | default(80) }};
-   listen    [::]:{{ item.value.listen | default(80) }};
-   server_name    {{ item.value.domains | join(' ') }};
-{% endif %}
 
    location /.well-known/acme-challenge {
-      alias /var/www/{{ item.key }}/.well-known/acme-challenge;
+      alias /var/www/{{ item.name }}/.well-known/acme-challenge;
    }
 
-   location /{{ item.value.proxy_check.secret | default('') }}check {
-      allow {{ item.value.proxy_check.allow_ip | default('127.0.0.1') }};
+   location /{{ item.proxy_check.secret | default('') }}check {
+      allow {{ item.proxy_check.allow_ip | default('127.0.0.1') }};
       deny all;
       default_type application/json;
       return 200 '{"code":"1", "message": "Success"}';
    }
 
-{% if item.value.proxy_check.destionation is defined %}
-   location /{{ item.value.proxy_check.secret| default('') }}proxy_check {
-      allow {{ item.value.proxy_check.allow_ip | default('127.0.0.1') }};
+{% if item.proxy_check.destionation is defined %}
+   location /{{ item.proxy_check.secret| default('') }}proxy_check {
+      allow {{ item.proxy_check.allow_ip | default('127.0.0.1') }};
       deny all;
-      proxy_pass {{ item.value.backend_protocol | default('http') }}://{{ item.key }}_backend/{{ item.value.proxy_check.destionation }};
+      proxy_pass {{ item.backend_protocol | default('http') }}://{{ item.name }}_backend/{{ item.proxy_check.destionation }};
    }
 {% endif %}
 
-{% if item.value.locations is defined and item.value.locations | length > 0 %}
-{% for location in item.value.locations %}
+{% if item.locations is defined %}
+{% for location in item.locations %}
    location {{ location.path }} {
-      {% for header in location.config | default([]) %}
+      {% for config in location.config %}
       {{ config }}
       {% endfor %}
    }
 {% endfor %}
+{% else %}
+   # No additional Locations defined
 {% endif %}
 
    location / {
-{% if item.value.lua_action is defined %}
-      {{ item.value.lua_action }}
-{% endif %}
-      
+      {{ item.lua_action | default('# No LUA action defined') }}     
       gzip off;
-      proxy_set_header X-Forwarded-Ssl on;
-      client_max_body_size {{ item.value.client_max_body_size | default('50M') }};
-      proxy_read_timeout {{ item.value.proxy_read_timeout | default('360') }};
+      client_max_body_size {{ item.client_max_body_size | default('50M') }};
+      proxy_read_timeout {{ item.proxy_read_timeout | default('360') }};
       proxy_buffer_size 128k;
       proxy_buffers 4 256k;
       proxy_busy_buffers_size 256k;
-{% if item.value.conn_upgrade is defined and item.value.conn_upgrade %}
+{% if item.conn_upgrade is defined and item.conn_upgrade %}
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection "upgrade";
 {% endif %}
       proxy_set_header Host $http_host;
       proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-Ssl on;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
       proxy_set_header X-Frame-Options SAMEORIGIN;
-      proxy_pass {{ item.value.backend_protocol | default('http') }}://{{ item.key }}_backend;
+      proxy_pass {{ item.backend_protocol | default('http') }}://{{ item.name }}_backend;
    }
 
-   access_log /var/log/nginx/{{ item.key }}_access.log;
-   error_log /var/log/nginx/{{ item.key }}_error.log error;
+   access_log /var/log/nginx/{{ item.name }}_access.log;
+   error_log /var/log/nginx/{{ item.name }}_error.log error;
 
 }
-{% endif %}
