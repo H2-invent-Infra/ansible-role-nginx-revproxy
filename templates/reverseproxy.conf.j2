@@ -59,6 +59,12 @@ server {
    ssl_prefer_server_ciphers on;
    ssl_session_cache shared:SSL:10m;
 
+{% if item.server_settings is defined %}
+{% for setting in item.server_settings %}
+   {{ setting }};
+{% endfor %}
+{% endif %}
+
    location /.well-known/acme-challenge {
       alias /var/www/{{ item.name }}/.well-known/acme-challenge;
    }
