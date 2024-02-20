@@ -101,19 +101,22 @@ server {
       gzip off;
       client_max_body_size {{ item.client_max_body_size | default('50M') }};
       proxy_read_timeout {{ item.proxy_read_timeout | default('360') }};
-      proxy_buffer_size 128k;
-      proxy_buffers 4 256k;
-      proxy_busy_buffers_size 256k;
-{% if item.conn_upgrade is defined and item.conn_upgrade %}
+      proxy_buffer_size {{ item.proxy_buffer_size | default('128k') }};
+      proxy_buffers 4 {{ item.proxy_buffers | default('256k') }};
+      proxy_busy_buffers_size {{ item.proxy_busy_buffers_size | default('256k') }};
+      proxy_set_header Host $http_host;
+{% if item.conn_upgrade | default(false) %}
+      proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection "upgrade";
 {% endif %}
-      proxy_set_header Host $http_host;
+{% if item.forward_header | default(true) %}
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-Ssl on;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
       proxy_set_header X-Frame-Options SAMEORIGIN;
+{% endif %}
       proxy_pass {{ item.backend_protocol | default('http') }}://{{ item.name }}_backend;
    }
 

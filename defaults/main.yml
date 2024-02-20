@@ -29,6 +29,7 @@ nginx_revproxy_sites:                                         # List of sites to
     nginx_ssl_certificate: "/etc/letsencrypt/live/{{ item.name }}/fullchain.pem"
     nginx_ssl_certificate_key: "/etc/letsencrypt/live/{{ item.name }}/privkey.pem"
     conn_upgrade: false
+    forward_header: true
     lua_action: ""
     locations: []
     # path:
