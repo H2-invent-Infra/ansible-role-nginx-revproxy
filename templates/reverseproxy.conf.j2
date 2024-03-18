@@ -46,7 +46,7 @@ server {
 
    server_name    {{ item.domains | join(' ') }};
 
-{% if nginx_ssl_certificate_state.stat.exists %}
+{% if nginx_ssl_certificate_state.stat is defined and nginx_ssl_certificate_state.stat.exists %}
    ssl_certificate {{ item.nginx_ssl_certificate }};
    ssl_certificate_key {{ item.nginx_ssl_certificate_key }};
 {% else %}

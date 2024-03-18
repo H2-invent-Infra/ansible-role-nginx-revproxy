@@ -2,6 +2,7 @@
   stat:
     path: "{{ item.nginx_ssl_certificate }}"
   register: nginx_ssl_certificate_state
+  when: item.nginx_ssl_certificate is defined
 
 - name: Add Site Config for {{ item.name }}
   template:
