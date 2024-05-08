@@ -1,8 +1,19 @@
+---
+- name: Set Facts
+  set_fact:
+    name: "{{ item.name }}"
+
 - name: Check if letsencrypt ssl certificate for {{ item.name }} is available
   stat:
     path: "{{ item.nginx_ssl_certificate }}"
   register: nginx_ssl_certificate_state
   when: item.nginx_ssl_certificate is defined
+
+- name: Include Application specific vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ name }}.yml"
+    - "default.yml"
 
 - name: Add Site Config for {{ item.name }}
   template:

@@ -66,12 +66,8 @@ server {
 
    server_name    {{ item.domains | join(' ') }};
 
-{% if item.root is defined %}
-   root {{ item.root }};
-{% endif %}
-{% if item.index is defined %}
-   index {{ item.index }};
-{% endif %}
+   root {{ item.root | default(__nginx_default_root) }};
+   index {{ item.index | default(__nginx_default_index) }};
 
 {% for include in item.includes | default([]) %}
    include {{ include }};
@@ -115,11 +111,9 @@ server {
    }
 {% endif %}
 
-{% if item.locations is defined %}
-{% for location in item.locations %}
+{% for location in item.locations | default(__nginx_default_locations) %}
    {{ location | indent(4) }}
 {% endfor %}
-{% endif %}
 
 {% if item.upstreams is defined %}
    location / {

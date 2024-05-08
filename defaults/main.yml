@@ -13,7 +13,7 @@ nginx_openresty_lua_config:
   - lua_shared_dict jwks 1m;
 
 nginx_revproxy_sites:                                         # List of sites to reverse proxy
-  - name: example.com                                         # Domain name
+  - name: jitsi-admin
     listen:
       - 80
     listen_ssl:
@@ -35,8 +35,6 @@ nginx_revproxy_sites:                                         # List of sites to
     includes: []
     root:
     index:
-    # path:
-    # config:
 
 
 # Remove WebRoot Sites
