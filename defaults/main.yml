@@ -32,6 +32,9 @@ nginx_revproxy_sites:                                         # List of sites to
     forward_header: true
     lua_action: ""
     locations: []
+    includes: []
+    root:
+    index:
     # path:
     # config:
 

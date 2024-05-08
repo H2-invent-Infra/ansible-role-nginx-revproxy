@@ -3,10 +3,19 @@
 # Do NOT modify this file by hand!
 ################################################################################
 
+{% if item.upstreams is defined %}
 upstream {{ item.name }}_backend  {
 {% for upstream in item.upstreams %}
     server {{upstream.backend_address}}:{{upstream.backend_port}};
 {% endfor %}
+}
+{% endif %}
+
+geo $external_clients {
+    192.168.0.0/16  0;
+    172.16.0.0/18   0;
+    10.0.0.0/8      0;
+    default         1;
 }
 
 # HTTP Frontend with a redirection to HTTPS
@@ -18,6 +27,17 @@ server {
 {% endfor %}
 
    server_name    {{ item.domains | join(' ') }};
+
+{% if item.root is defined %}
+   root {{ item.root }};
+{% endif %}
+{% if item.index is defined %}
+   index {{ item.index }};
+{% endif %}
+
+{% for include in item.includes | default([]) %}
+   include {{ include }};
+{% endfor %}
 
    location / {
       return         301 https://$server_name$request_uri;
@@ -45,6 +65,17 @@ server {
 {% endfor %}
 
    server_name    {{ item.domains | join(' ') }};
+
+{% if item.root is defined %}
+   root {{ item.root }};
+{% endif %}
+{% if item.index is defined %}
+   index {{ item.index }};
+{% endif %}
+
+{% for include in item.includes | default([]) %}
+   include {{ include }};
+{% endfor %}
 
 {% if nginx_ssl_certificate_state.stat is defined and nginx_ssl_certificate_state.stat.exists %}
    ssl_certificate {{ item.nginx_ssl_certificate }};
@@ -86,16 +117,11 @@ server {
 
 {% if item.locations is defined %}
 {% for location in item.locations %}
-   location {{ location.path }} {
-      {% for config in location.config %}
-      {{ config }}
-      {% endfor %}
-   }
+   {{ location | indent(4) }}
 {% endfor %}
-{% else %}
-   # No additional Locations defined
 {% endif %}
 
+{% if item.upstreams is defined %}
    location / {
       {{ item.lua_action | default('# No LUA action defined') }}     
       gzip off;
@@ -119,6 +145,7 @@ server {
 {% endif %}
       proxy_pass {{ item.backend_protocol | default('http') }}://{{ item.name }}_backend;
    }
+{% endif %}
 
    access_log /var/log/nginx/{{ item.name }}_access.log;
    error_log /var/log/nginx/{{ item.name }}_error.log error;
