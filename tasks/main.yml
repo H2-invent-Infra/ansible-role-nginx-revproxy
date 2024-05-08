@@ -17,6 +17,8 @@
     dest: /etc/nginx/sites-enabled/{{ item.name }}
     state: link
   with_items: "{{ nginx_revproxy_sites }}"
+  when:
+    - (nginx_php_applications is not defined) or (item.name in nginx_php_applications)
   notify: Reload Nginx
 
 - include_tasks: letsencrypt.yml
