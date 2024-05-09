@@ -15,6 +15,15 @@
     - "{{ name }}.yml"
     - "default.yml"
 
+- name: Set nginx_default_ssl Path if ssl certificate exists
+  set_fact:
+    nginx_default_ssl_certificate: "{{ item.nginx_ssl_certificate }}"
+    nginx_default_ssl_certificate_key: "{{ item.nginx_ssl_certificate_key }}"
+  when:
+    - item.nginx_ssl_certificate is defined
+    - nginx_ssl_certificate_state is defined
+    - nginx_ssl_certificate_state.stat.exists
+
 - name: Add Site Config for {{ item.name }}
   template:
     src: reverseproxy.conf.j2

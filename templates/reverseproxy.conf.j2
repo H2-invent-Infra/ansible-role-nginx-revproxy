@@ -28,12 +28,8 @@ server {
 
    server_name    {{ item.domains | join(' ') }};
 
-{% if item.root is defined %}
-   root {{ item.root }};
-{% endif %}
-{% if item.index is defined %}
-   index {{ item.index }};
-{% endif %}
+   root {{ item.root | default(__nginx_default_root) }};
+   index {{ item.index | default(__nginx_default_index) }};
 
 {% for include in item.includes | default([]) %}
    include {{ include }};
@@ -73,13 +69,8 @@ server {
    include {{ include }};
 {% endfor %}
 
-{% if nginx_ssl_certificate_state.stat is defined and nginx_ssl_certificate_state.stat.exists %}
-   ssl_certificate {{ item.nginx_ssl_certificate }};
-   ssl_certificate_key {{ item.nginx_ssl_certificate_key }};
-{% else %}
-   ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
-   ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
-{% endif %}
+   ssl_certificate {{ nginx_default_ssl_certificate }};
+   ssl_certificate_key {{ nginx_default_ssl_certificate_key }};
    ssl_session_timeout 5m;
    ssl_protocols TLSv1.1 TLSv1.2;
    ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
@@ -96,7 +87,7 @@ server {
       alias /var/www/{{ item.name }}/.well-known/acme-challenge;
    }
 
-   location /{{ item.proxy_check.secret | default('') }}check {
+   location /{{ item.proxy_check.secret | default(item.name) }}check {
       allow {{ item.proxy_check.allow_ip | default('127.0.0.1') }};
       deny all;
       default_type application/json;
@@ -104,7 +95,7 @@ server {
    }
 
 {% if item.proxy_check.destionation is defined %}
-   location /{{ item.proxy_check.secret| default('') }}proxy_check {
+   location /{{ item.proxy_check.secret| default(item.name) }}proxy_check {
       allow {{ item.proxy_check.allow_ip | default('127.0.0.1') }};
       deny all;
       proxy_pass {{ item.backend_protocol | default('http') }}://{{ item.name }}_backend/{{ item.proxy_check.destionation }};

@@ -43,6 +43,9 @@ nginx_revproxy_remove_webroot_sites: true
 # De-activate Sites
 nginx_revproxy_de_activate_sites: true
 
+
+nginx_default_ssl_certificate: /etc/ssl/certs/ssl-cert-snakeoil.pem
+nginx_default_ssl_certificate_key: /etc/ssl/private/ssl-cert-snakeoil.key
 # Generate Certificates with Letsencrypt
 # h2_certbot_certs: []
 
