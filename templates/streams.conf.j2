@@ -1,0 +1,34 @@
+####################################################
+#                                                  #
+#          A N S I B L E   T E M P L A T E         #
+#                                                  #
+####################################################
+
+stream {
+
+    map_hash_bucket_size 64;
+    map $ssl_preread_server_name $name {
+{% for stream in nginx_revproxy_streams %}
+        {{ stream.domain }} {{ stream.name }}_backend;
+{% endfor %}
+    }
+
+{% for stream in nginx_revproxy_streams %}
+    upstream {{ stream.name }}_backend {
+        server {{ stream.upstream_ip }}:{{ stream.upstream_port }};
+    }
+{% endfor %}
+
+    server {
+        listen {{ nginx_revproxy_streams_port }};
+        listen [::]:{{ nginx_revproxy_streams_port }};
+
+        # since 1.11.5
+        ssl_preread on;
+
+        proxy_pass $name;
+
+        # Increase buffer to serve video
+        proxy_buffer_size 10m;
+    }
+}

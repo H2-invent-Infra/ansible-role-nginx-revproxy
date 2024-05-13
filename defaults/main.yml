@@ -36,6 +36,13 @@ nginx_revproxy_sites:                                         # List of sites to
     root:
     index:
 
+nginx_revproxy_streams_enabled: false
+nginx_revproxy_streams_port: 443
+nginx_revproxy_streams:
+  - name: name
+    domain:
+    upstream_ip: 127.0.0.1
+    upstream_port: 4444
 
 # Remove WebRoot Sites
 nginx_revproxy_remove_webroot_sites: true

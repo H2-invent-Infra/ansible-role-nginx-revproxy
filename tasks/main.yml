@@ -21,5 +21,11 @@
     - (nginx_php_applications is not defined) or (item.name in nginx_php_applications)
   notify: Reload Nginx
 
+- include_tasks: streams.yml
+  when: nginx_revproxy_streams_enabled
+
+- name: Flush handlers
+  meta: flush_handlers
+
 - include_tasks: letsencrypt.yml
   when: h2_certbot_certs is defined

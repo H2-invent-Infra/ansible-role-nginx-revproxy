@@ -1,0 +1,14 @@
+- name: Add streams for TCP4
+  template:
+    src: streams.conf.j2
+    dest: /etc/nginx/modules-available/streams.conf
+    owner: root
+    group: root
+    mode: 0640
+  notify: Reload Nginx
+
+- name: Enable Stream Config
+  file:
+    src: /etc/nginx/modules-available/streams.conf
+    dest: /etc/nginx/modules-enabled/streams.conf
+    state: link
