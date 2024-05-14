@@ -20,14 +20,14 @@ nginx_revproxy_sites:                                         # List of sites to
       - 443
     client_max_body_size: "256M"
     proxy_read_timeout: "360"
-    domains:                                                  # List of server_name aliases
+    domains:
       - example.com
       - www.example.com
-    upstreams:                                                # List of Upstreams
+    upstreams:
       - {backend_address: 192.168.0.100, backend_port: 80}
-      - {backend_address: 192.168.0.101, backend_port: 8080}
     nginx_ssl_certificate: "/etc/letsencrypt/live/{{ item.name }}/fullchain.pem"
     nginx_ssl_certificate_key: "/etc/letsencrypt/live/{{ item.name }}/privkey.pem"
+    application: symfony
     conn_upgrade: false
     forward_header: true
     lua_action: ""
@@ -53,6 +53,7 @@ nginx_revproxy_de_activate_sites: true
 
 nginx_default_ssl_certificate: /etc/ssl/certs/ssl-cert-snakeoil.pem
 nginx_default_ssl_certificate_key: /etc/ssl/private/ssl-cert-snakeoil.key
+
 # Generate Certificates with Letsencrypt
 # h2_certbot_certs: []
 

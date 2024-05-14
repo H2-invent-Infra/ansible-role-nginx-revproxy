@@ -12,7 +12,7 @@
 - name: Include Application specific vars
   include_vars: "{{ item }}"
   with_first_found:
-    - "{{ name }}.yml"
+    - "{{ item.application | default(name) }}.yml"
     - "default.yml"
 
 - name: Set nginx_default_ssl Path if ssl certificate exists
