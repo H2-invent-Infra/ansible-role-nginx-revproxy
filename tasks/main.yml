@@ -24,6 +24,8 @@
 - include_tasks: streams.yml
   when: nginx_revproxy_streams_enabled
 
+- include_tasks: nginx-status.yml
+
 - name: Flush handlers
   meta: flush_handlers
 

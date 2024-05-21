@@ -1,0 +1,12 @@
+- name: "H2 INVENT | NGINX | nginx-stats Create config for site"
+  template:
+    src: nginx-stats.conf 
+    dest: "/etc/nginx/sites-available/nginx-stats.conf"
+  notify: Reload Nginx
+
+- name: "H2 INVENT | NGINX | nginx-stats Enable Site"
+  file:
+    src: /etc/nginx/sites-available/nginx-stats.conf 
+    dest: "/etc/nginx/sites-enabled/nginx-stats.conf"
+    state: link
+  notify: Reload Nginx
