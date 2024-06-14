@@ -26,3 +26,9 @@ __nginx_default_locations:
       {% endif -%}
       proxy_pass {{ item.backend_protocol | default('http') }}://{{ item.name }}_backend;
     }
+  - |
+    {% if location_redirect is defined %}
+    location {{ location_redirect.path }} {
+      return 302 {{ location_redirect.dest }};
+    }
+    {% endif %}
