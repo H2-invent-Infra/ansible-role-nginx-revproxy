@@ -2,6 +2,8 @@
 
 - include_tasks: "{{ nginx_software }}_install.yml"
 
+- include_tasks: set_facts.yml
+
 - include_role: 
     name: ansible-role-custom-cert
   when: h2_custom_cert_certiciate is defined
@@ -18,8 +20,7 @@
     state: link
   with_items: "{{ nginx_revproxy_sites }}"
   when:
-    - (nginx_php_applications is not defined)\
-      or (item.name in nginx_php_applications)
+    - (nginx_applications is not defined) or (item.name in nginx_applications)
   notify: Reload Nginx
 
 - include_tasks: streams.yml

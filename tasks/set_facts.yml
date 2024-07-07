@@ -1,0 +1,5 @@
+- name: Set nginx_applications for php applications
+  set_fact:
+    nginx_applications: "{{ nginx_php_applications }}"
+  when:
+    - nginx_php_applications is defined
