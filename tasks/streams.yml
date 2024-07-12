@@ -1,14 +1,22 @@
-- name: Add streams for TCP4
+- name: Verify Stream directory exists
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /etc/nginx/modules-available
+    - /etc/nginx/modules-enabled
+
+- name: Add streams for TCP4 for {{ item.name }}
   template:
     src: streams.conf.j2
-    dest: /etc/nginx/modules-available/streams.conf
+    dest: "/etc/nginx/modules-available/{{ item.name }}_streams.conf"
     owner: root
     group: root
     mode: 0640
   notify: Reload Nginx
 
-- name: Enable Stream Config
+- name: Enable Stream Config for {{ item.name }}
   file:
-    src: /etc/nginx/modules-available/streams.conf
-    dest: /etc/nginx/modules-enabled/streams.conf
+    src: "/etc/nginx/modules-available/{{ item.name }}_streams.conf"
+    dest: "/etc/nginx/modules-enabled/{{ item.name }}_streams.conf"
     state: link

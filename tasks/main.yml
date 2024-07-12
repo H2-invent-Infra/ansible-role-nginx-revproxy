@@ -10,6 +10,10 @@
 
 - include_tasks: _deactivate_sites.yml
 
+- include_tasks: streams.yml
+  with_items: "{{ nginx_revproxy_streams }}"
+  when: nginx_revproxy_streams_enabled
+
 - include_tasks: _create_sites.yml
   with_items: "{{ nginx_revproxy_sites }}"
 
@@ -22,9 +26,6 @@
   when:
     - (nginx_applications is not defined) or (item.name in nginx_applications)
   notify: Reload Nginx
-
-- include_tasks: streams.yml
-  when: nginx_revproxy_streams_enabled
 
 - include_tasks: nginx-status.yml
 

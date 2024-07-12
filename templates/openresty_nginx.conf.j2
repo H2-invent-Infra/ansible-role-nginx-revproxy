@@ -3,6 +3,7 @@ worker_processes  1;
 
 #pid        logs/nginx.pid;
 
+include /etc/nginx/modules-enabled/*.conf;
 
 events {
     worker_connections  1024;
