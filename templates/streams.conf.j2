@@ -5,44 +5,40 @@
 ####################################################
 
 stream {
-
-
     map_hash_bucket_size 64;
     map $ssl_preread_server_name $name {
-{% for stream in item.streams %}
-        {{ stream.domain | default('default') }} {{ stream.name | default('default') }}_backend;
-{% endfor %}
+{% for server in nginx_revproxy_streams %}{% for stream in server.streams if stream.domain is defined %}
+        {{ stream.domain }} {{ stream.name | default('default') }}_{{ server.listen_port | default('443') }}_backend;
+{% endfor %}{% endfor %}
     }
 
-{% for stream in item.streams %}
-{% if item.streams | length > 1 %}
-    upstream {{ stream.name | default('default') }}_backend {
+{% for server in nginx_revproxy_streams %}
+{% for stream in server.streams %}
+    upstream {{ stream.name | default('default') }}_{{ server.listen_port | default('443') }}_backend {
 {% for ip in stream.upstream_ip %}
         server {{ ip }}:{{ stream.upstream_port }};
 {% endfor %}
     }
-{% else %}
-    upstream backend {
-{% for ip in stream.upstream_ip %}
-        server {{ ip }}:{{ stream.upstream_port }};
 {% endfor %}
-    }
-{% endif %}
 {% endfor %}
 
+
+{% for server in nginx_revproxy_streams %}
     server {
-        listen {{ item.listen_port | default('443') }};
-        listen [::]:{{ item.listen_port | default('443') }};
+        listen {{ server.listen_port | default('443') }};
+        listen [::]:{{ server.listen_port | default('443') }};
 
-{% if item.streams | length > 1 %}
+{% if server.streams | length >= 2 %}
         # since 1.11.5
         ssl_preread on;
         proxy_pass $name;
 {% else %}
-        proxy_pass backend;
+        proxy_pass {{ server.streams[0].name | default('default') }}_{{ server.listen_port | default('443') }}_backend;
 {% endif %}
 
         # Increase buffer to serve video
         proxy_buffer_size 10m;
     }
+{% endfor %}
+
 }

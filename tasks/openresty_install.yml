@@ -39,4 +39,6 @@
   with_items:
     - /etc/nginx/sites-available
     - /etc/nginx/sites-enabled
+    - /etc/nginx/modules-available
+    - /etc/nginx/modules-enabled
     - /var/log/nginx

@@ -11,7 +11,6 @@
 - include_tasks: _deactivate_sites.yml
 
 - include_tasks: streams.yml
-  with_items: "{{ nginx_revproxy_streams }}"
   when: nginx_revproxy_streams_enabled
 
 - include_tasks: _create_sites.yml
