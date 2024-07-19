@@ -4,5 +4,6 @@
   apt:
     name:
       - nginx
+      - nginx-extras
       - ssl-cert
     state: present
