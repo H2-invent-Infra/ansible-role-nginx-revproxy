@@ -2,7 +2,7 @@
 
 payload='{
         "key": "internal_secret",
-        "host": "de-h2-git01.h2.home"
+        "host": "de-h2-ans01.h2.home"
 }'
 
 #
