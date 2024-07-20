@@ -30,6 +30,11 @@
   notify:
     - Reload Nginx
 
+- name: Remove Lua Scripts
+  file:
+    path: /etc/nginx/lua_blocks
+    state: absent
+
 - name: Create NGINX directory
   file:
     path: "{{ item }}"

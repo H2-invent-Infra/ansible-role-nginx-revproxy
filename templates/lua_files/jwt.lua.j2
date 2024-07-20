@@ -4,11 +4,11 @@ local validators = require "resty.jwt-validators"
 guard.GuardJWT.verify_and_map(
     {
 {% if item.verifications is defined %}
-{% for verify in item.verifications %}
-        {{ verify.indicatior }} = {
-            validators = validators.equals_any_of({ "{{ verify.equals }}" }),
-            header = "{{ verify.header }}"
-        }{% if not loop.latest %},{% endif %}
+{% for payload in item.verifications %}
+        {{ payload.indicatior }} = {
+            validators = validators.equals_any_of({ "{{ payload.validator }}" }),
+            header = "{{ payload.header }}"
+        },
 {% endfor %}
 {% else %}
         auth = {

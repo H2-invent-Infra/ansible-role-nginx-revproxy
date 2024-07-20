@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 
+payload='{
+        "key": "internal_secret",
+        "host": "de-h2-git01.h2.home"
+}'
+
 #
 # JWT Encoder Bash Script
 #
 
-secret='SOME SECRET'
+secret=${1}
 
 # Static header fields.
 header='{
 	"typ": "JWT",
 	"alg": "HS256",
-	"kid": "0001",
 	"iss": "Bash JWT Generator"
 }'
 
@@ -25,10 +29,6 @@ header=$(
 	| .exp=($time_num + 1)
 	'
 )
-payload='{
-	"Id": 1,
-	"Name": "Hello, world!"
-}'
 
 base64_encode()
 {
