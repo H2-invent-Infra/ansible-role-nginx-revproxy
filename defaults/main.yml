@@ -47,6 +47,15 @@ nginx_revproxy_streams:
           - 127.0.0.1
         upstream_port: 4444
 
+nginx_revproxy_lua_files:
+  - name: sso_h2_invent_oidc_access.lua
+    template: oidc.lua.j2
+    discovery: https://sso.h2.home/realms/h2invent/.well-known/openid-configuration
+    client_id: changeme
+    client_secret: chamgeme
+
+
+
 # Remove WebRoot Sites
 nginx_revproxy_remove_webroot_sites: true
 

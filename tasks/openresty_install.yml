@@ -41,4 +41,11 @@
     - /etc/nginx/sites-enabled
     - /etc/nginx/modules-available
     - /etc/nginx/modules-enabled
+    - /etc/nginx/lua_blocks
     - /var/log/nginx
+
+- name: Create Lua Script for OpenResty
+  template:
+    src: "lua_files/{{ item.template }}"
+    dest: "/etc/nginx/lua_blocks/{{ item.name }}"
+  with_items: "{{ nginx_revproxy_lua_files }}"

@@ -1,0 +1,24 @@
+local opts = {
+    redirect_uri = "/secure_redirect",
+    discovery = "{{ item.discovery }}",
+    client_id = "{{ item.client_id }}",
+    client_secret = "{{ item.client_secret }}",
+{% if proxy_settings_http_proxy is defined and proxy_settings_http_proxy != "" %}
+    proxy_opts = {
+        http_proxy = "{{ proxy_settings_http_proxy }}",
+        https_proxy = "{{ proxy_settings_https_proxy }}"
+    },
+{% endif %}
+    accept_unsupported_alg = true,
+    accept_none_alg = false,
+}
+
+local res, err = require("resty.openidc").authenticate(opts)
+
+if err then
+    ngx.status = 500
+    ngx.say(err)
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
+ngx.req.set_header("X-USER", res.id_token.sub)
