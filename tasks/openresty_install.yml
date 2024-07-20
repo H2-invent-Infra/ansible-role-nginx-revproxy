@@ -49,3 +49,4 @@
     src: "lua_files/{{ item.template }}"
     dest: "/etc/nginx/lua_blocks/{{ item.name }}"
   with_items: "{{ nginx_revproxy_lua_files }}"
+#  no_log: true

@@ -3,8 +3,8 @@ __nginx_default_root: /var/www/html
 __nginx_default_index: index.html
 __nginx_default_locations:
   - |
-    location / {
-      {{ item.lua_action | default('# No LUA action defined') }}     
+    location {{ item.single_location | default('/') }} {
+      {{ item.lua_action | default('# No LUA action defined') }}    
       gzip off;
       client_max_body_size {{ item.client_max_body_size | default('50M') }};
       proxy_read_timeout {{ item.proxy_read_timeout | default('360') }};

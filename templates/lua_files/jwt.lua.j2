@@ -1,18 +1,25 @@
-local j = require "guardjwt"
+local guard = require "resty.guardjwt"
 local validators = require "resty.jwt-validators"
 
-j.GuardJWT.verify(
+guard.GuardJWT.verify_and_map(
     {
-{% for verify in verifications %}
-    {{ verify.indicatior }} = {
-        validators = validators.equals_any_of({ {{ verify.equals }} }),
-        header = "{{ verify.header }}"
-    }
+{% if item.verifications is defined %}
+{% for verify in item.verifications %}
+        {{ verify.indicatior }} = {
+            validators = validators.equals_any_of({ "{{ verify.equals }}" }),
+            header = "{{ verify.header }}"
+        }{% if not loop.latest %},{% endif %}
 {% endfor %}
+{% else %}
+        auth = {
+            validators = validators.equals_any_of({ "internal_secret" }),
+            header = "X-Auth"
+        }
+{% endif %}
     },
     {
-    secret = "{{ secret }}",
-    is_token_mandatory = {{ is_token_mandatory | default('true') }},
-    clear_authorization_header = {{ clear_authorization_header | default('true') }}
+        secret = "{{ item.secret }}",
+        is_token_mandatory = {{ item.is_token_mandatory | default('true') }},
+        clear_authorization_header = {{ item.clear_authorization_header | default('true') }}
     }
 )
