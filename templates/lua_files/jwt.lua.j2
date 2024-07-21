@@ -6,7 +6,7 @@ guard.GuardJWT.verify_and_map(
 {% if item.verifications is defined %}
 {% for payload in item.verifications %}
         {{ payload.indicatior }} = {
-            validators = validators.equals_any_of({ "{{ payload.validator }}" }),
+            validators = validators.equals_any_of({ "{{ payload.validator | join('", "') }}" }),
             header = "{{ payload.header }}"
         },
 {% endfor %}

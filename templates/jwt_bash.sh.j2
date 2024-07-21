@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-payload='{
-        "key": "internal_secret",
-        "host": "de-h2-ans01.h2.home"
-}'
-
 #
 # JWT Encoder Bash Script
 #
@@ -29,6 +24,8 @@ header=$(
 	| .exp=($time_num + 1)
 	'
 )
+
+payload="${2}"
 
 base64_encode()
 {
