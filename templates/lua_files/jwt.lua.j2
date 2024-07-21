@@ -20,6 +20,7 @@ guard.GuardJWT.verify_and_map(
     {
         secret = "{{ item.secret }}",
         is_token_mandatory = {{ item.is_token_mandatory | default('true') }},
-        clear_authorization_header = {{ item.clear_authorization_header | default('true') }}
+        clear_authorization_header = {{ item.clear_authorization_header | default('true') }},
+        authorization_header = "{{ item.authorization_header | default('authorization') }}"
     }
 )
