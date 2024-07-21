@@ -136,18 +136,13 @@ function GuardJWT.raw_verify_and_map(nginx, claim_spec, cfg)
     cfg['clear_authorization_header'] = true
   end
 
-  if cfg.authorization_header == nil then
-    cfg['authorization_header'] = "authorization"
-  end
-
--- Do not purge the headers because they may be in use!
---  _purge_headers(nginx, claim_spec)
+  _purge_headers(nginx, claim_spec)
 
   local claim = _guess_claim(
     nginx,
     claim_spec,
     cfg.secret,
-    nginx.req.get_headers()[cfg.authorization_header]
+    nginx.req.get_headers()["authorization"]
   )
 
   if cfg.is_token_mandatory == false and claim == nil then
@@ -170,7 +165,7 @@ function GuardJWT.raw_verify_and_map(nginx, claim_spec, cfg)
   end
 
   if cfg.clear_authorization_header then
-    nginx.req.clear_header(cfg.authorization_header)
+    nginx.req.clear_header("authorization")
   end
 
   return claim
