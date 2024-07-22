@@ -150,6 +150,8 @@ function GuardJWT.raw_verify_and_map(nginx, claim_spec, cfg)
     nginx.req.get_headers()[cfg.authorization_header]
   )
 
+  _purge_headers(nginx, claim_spec)
+
   if cfg.is_token_mandatory == false and claim == nil then
     nginx.log(nginx.DEBUG, "[JWTGuard] No JWT provided")
     return
