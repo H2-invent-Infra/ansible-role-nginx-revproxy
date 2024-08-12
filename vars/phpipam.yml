@@ -1,0 +1,23 @@
+__nginx_default_root: /var/www/phpipam
+__nginx_default_index: index.php
+__nginx_default_locations:
+  - |
+    # phpipam
+    location / {
+        try_files $uri $uri/ /index.php;
+        index index.php;
+    }
+  - |
+    # phpipam - api
+    location /api/ {
+        try_files $uri $uri/ /api/index.php;
+    }
+
+  - |
+    # php-fpm
+    location ~ \.php$ {
+        fastcgi_pass   unix:/var/run/php-fpm-{{ item.name }}.sock;
+        fastcgi_index  index.php;
+        try_files      $uri $uri/ index.php = 404;
+        include        fastcgi_params;
+    }
