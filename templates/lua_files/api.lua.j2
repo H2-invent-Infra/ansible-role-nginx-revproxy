@@ -1,0 +1,56 @@
+local guard = require "resty.guardjwt"
+local validators = require "resty.jwt-validators"
+
+local jwt,err = guard.GuardJWT.raw_verify_and_map(
+    {
+{% if item.verifications is defined %}
+{% for payload in item.verifications %}
+        {{ payload.indicatior }} = {
+            validators = validators.equals_any_of({ "{{ payload.validator | join('", "') }}" }),
+{% if payload.header is defined %}
+            header = "{{ payload.header }}"
+{% endif %}
+        },
+{% endfor %}
+{% endif %}
+{% if item.url_validation is defined %}
+        url = {
+            validators = validators.opt_matches("{{ item.url_validation }}"),
+        },
+{% endif %}
+{% if item.exp_validation is defined and item.exp_validation %}
+        exp = {
+            validators = validators.is_not_expired(),
+        },
+{% endif %}
+{% if item.iat_validation is defined and item.iat_validation %}
+        iat = {
+            validators = validators.is_not_before(),
+        }
+{% endif %}
+
+    },
+    {
+        secret = "{{ item.secret }}",
+        is_token_mandatory = {{ item.is_token_mandatory | default('true') }},
+        clear_authorization_header = {{ item.clear_authorization_header | default('true') }},
+        authorization_header = "{{ item.authorization_header | default('authorization') }}"
+    }
+)
+
+{% if item.url_validation is defined %}
+if not jwt then
+    return ngx.exit(ngx.HTTP_UNAUTHORIZED)
+end
+
+-- Wert aus dem JWT extrahieren
+local url_payload = jwt.url
+
+-- Den Wert aus der URL extrahieren (z.B. von der Anfrage-URI)
+local uri_request = ngx.var.uri
+
+-- Überprüfen, ob der Wert aus der JWT-Payload mit einem Teil der URL übereinstimmt
+if not string.match(uri_request, url_payload) then
+    return ngx.exit(ngx.HTTP_FORBIDDEN)
+end
+{% endif %}

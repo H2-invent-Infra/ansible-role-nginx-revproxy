@@ -71,3 +71,9 @@ nginx_default_ssl_certificate_key: /etc/ssl/private/ssl-cert-snakeoil.key
 
 # Upload Custom Certificates from Vault
 # h2_custom_cert_certiciate: []
+
+
+ngninx_revproxy_jwt_secret:
+ngninx_revproxy_jwt_sub:
+ngninx_revproxy_jwt_exp:
+ngninx_revproxy_jwt_url:
