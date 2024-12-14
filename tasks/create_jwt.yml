@@ -6,14 +6,10 @@
   become: false
   delegate_to: localhost
 
-- name: set timestamp
-  command: date +%s
-  register: current_timestamp
-
 - name: Run JWT Create script
   shell: >
-    bash /tmp/jwt_bash_script {{ ngninx_revproxy_jwt_secret }} '{ "iat": "{{ current_timestamp.stdout | int }}", "exp": "{{ current_timestamp.stdout | int + 3600 }}", "sub": "{{ ngninx_revproxy_jwt_sub }}", "url": "{{ ngninx_revproxy_jwt_url }}" }'
-#  no_log: true
+    bash /tmp/jwt_bash_script '{{ ngninx_revproxy_jwt_secret }}' {{ nginx_revproxy_jwt_payload }}
+  no_log: true
   become: false
   delegate_to: localhost
   register: ngninx_revproxy_jwt_token

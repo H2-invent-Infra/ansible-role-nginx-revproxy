@@ -2,6 +2,7 @@ local guard = require "resty.guardjwt"
 local validators = require "resty.jwt-validators"
 
 local jwt,err = guard.GuardJWT.raw_verify_and_map(
+    ngx,
     {
 {% if item.verifications is defined %}
 {% for payload in item.verifications %}
@@ -12,11 +13,6 @@ local jwt,err = guard.GuardJWT.raw_verify_and_map(
 {% endif %}
         },
 {% endfor %}
-{% endif %}
-{% if item.url_validation is defined %}
-        url = {
-            validators = validators.opt_matches("{{ item.url_validation }}"),
-        },
 {% endif %}
 {% if item.exp_validation is defined and item.exp_validation %}
         exp = {
@@ -39,18 +35,21 @@ local jwt,err = guard.GuardJWT.raw_verify_and_map(
 )
 
 {% if item.url_validation is defined %}
-if not jwt then
-    return ngx.exit(ngx.HTTP_UNAUTHORIZED)
+local uri_request = ngx.var.uri
+local allowed = false
+
+if jwt then
+    for _, pattern in ipairs(jwt.url) do
+        if ngx.re.match(uri_request, pattern) then
+            allowed = true
+            break
+        end
+    end
+    
 end
 
--- Wert aus dem JWT extrahieren
-local url_payload = jwt.url
-
--- Den Wert aus der URL extrahieren (z.B. von der Anfrage-URI)
-local uri_request = ngx.var.uri
-
--- Überprüfen, ob der Wert aus der JWT-Payload mit einem Teil der URL übereinstimmt
-if not string.match(uri_request, url_payload) then
+if not allowed then
+    ngx.log(ngx.ERR, "[API GW] URL Forbidden")
     return ngx.exit(ngx.HTTP_FORBIDDEN)
 end
 {% endif %}
