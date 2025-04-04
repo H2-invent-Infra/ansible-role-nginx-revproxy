@@ -3,9 +3,11 @@ __nginx_default_root: /var/www/html
 __nginx_default_index: index.html
 __nginx_default_locations:
   - |
+    {% if matrix_synapse_admin_enabled is defined and matrix_synapse_admin_enabled %}
     location ~* ^/synapseadmin/ {
-        root {{ matrix_synapse_admin_root_path }};
+        root /var/www/synapse-admin;
     }
+    {% endif %}
   - |
     location ~* ^(\/_matrix|\/_synapse\/client|\/health|\/_synapse\/admin) {
       {{ item.lua_action | default('# No LUA action defined') }}     
