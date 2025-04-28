@@ -18,6 +18,7 @@ geo $external_clients {
     default         1;
 }
 
+{% if item.listen[0] | default(true) | bool %}
 # HTTP Frontend with a redirection to HTTPS
 server {
 
@@ -52,7 +53,11 @@ server {
    error_log /var/log/nginx/{{ item.name }}_error.log error;
 
 }
+{% else %}
+# NO HTTP Server installed because listen[0] = false
+{% endif %}
 
+{% if item.listen_ssl[0] | default(true) | bool %}
 # HTTPS Frontend with improved SSL/TLS Settings
 server {
 {% for port in item.listen_ssl | default(['443']) %}
@@ -112,3 +117,6 @@ server {
    error_log /var/log/nginx/{{ item.name }}_error.log error;
 
 }
+{% else %}
+# NO HTTPS Server installed because listen_ssl[0] = false
+{% endif %}
