@@ -36,18 +36,26 @@ server {
    include {{ include }};
 {% endfor %}
 
-   location / {
-      return         301 https://$host$request_uri;
-   }
-
+{% if item.ssl | default(true) %}
    location /.well-known/acme-challenge {
       alias /var/www/{{ item.name }}/.well-known/acme-challenge;
    }
+{% endif %}
 
    location /check {
       default_type application/json;
       return 200 '{"code":"1", "message": "Success"}';
    }
+
+{% if item.ssl | default(true) %}
+   location / {
+      return         301 https://$host$request_uri;
+   }
+{% else %}
+{% for location in item.locations | default(__nginx_default_locations) %}
+   {{ location | indent(4) }}
+{% endfor %}
+{% endif %}
 
    access_log /var/log/nginx/{{ item.name }}_access.log;
    error_log /var/log/nginx/{{ item.name }}_error.log error;
@@ -57,7 +65,7 @@ server {
 # NO HTTP Server installed because listen[0] = false
 {% endif %}
 
-{% if item.listen_ssl[0] is number | default(true) %}
+{% if item.ssl | default(true) %}
 # HTTPS Frontend with improved SSL/TLS Settings
 server {
 {% for port in item.listen_ssl | default(['443']) %}
