@@ -1,0 +1,18 @@
+server {
+    listen 80 default_server;
+
+    server_name _;
+
+{% if nginx_revproxy_global_acme_alias %}
+   location /.well-known/acme-challenge {
+      alias /var/www/html/.well-known/acme-challenge;
+   }
+{% endif %}
+
+{% if nginx_revproxy_global_redirect_http_to_https %}
+   location / {
+      return         301 https://$host$request_uri;
+   }
+{% else %}
+
+}

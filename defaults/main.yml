@@ -12,7 +12,11 @@ nginx_openresty_lua_config:
   - '# cache for JWKs'
   - lua_shared_dict jwks 1m;
 
-nginx_revproxy_sites:                                         # List of sites to reverse proxy
+nginx_revproxy_global_site: true
+nginx_revproxy_global_acme_alias: true
+nginx_revproxy_global_redirect_http_to_https: true
+
+nginx_revproxy_sites:
   - name: jitsi-admin
     listen:
       - 80

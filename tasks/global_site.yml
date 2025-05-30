@@ -1,0 +1,12 @@
+- name: "H2 INVENT | NGINX | nginx-stats Create config for site"
+  template:
+    src: global_site.conf.j2
+    dest: "/etc/nginx/sites-available/global.conf"
+  notify: Reload Nginx
+
+- name: "H2 INVENT | NGINX | global enable Site"
+  file:
+    src: /etc/nginx/sites-available/global.conf 
+    dest: "/etc/nginx/sites-enabled/global.conf"
+    state: link
+  notify: Reload Nginx

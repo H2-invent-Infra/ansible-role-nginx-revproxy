@@ -26,6 +26,10 @@
     - (nginx_applications is not defined) or (item.name in nginx_applications)
   notify: Reload Nginx
 
+- include_tasks: global_site.yml
+  when:
+    - nginx_revproxy_global_site
+
 - include_tasks: nginx-status.yml
 
 - name: Flush handlers
