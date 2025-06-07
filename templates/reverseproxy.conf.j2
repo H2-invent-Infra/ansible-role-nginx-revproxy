@@ -18,11 +18,11 @@ geo $external_clients {
     default         1;
 }
 
-{% if item.listen[0] is number | default(true) %}
+{% if item.listen is defined and item.listen | length > 0  %}
 # HTTP Frontend with a redirection to HTTPS
 server {
 
-{% for port in item.listen | default(['80']) %}
+{% for port in item.listen %}
    listen         {{ port }};
    listen    [::]:{{ port }};
 {% endfor %}
@@ -65,7 +65,7 @@ server {
 # NO HTTP Server installed because listen[0] = false
 {% endif %}
 
-{% if item.ssl | default(true) %}
+{% if item.listen_ssl is defined and item.listen_ssl | length > 0 %}
 # HTTPS Frontend with improved SSL/TLS Settings
 server {
 {% for port in item.listen_ssl | default(['443']) %}
