@@ -108,4 +108,13 @@ __nginx_default_locations:
       proxy_set_header X-Forwarded-Proto $scheme;
       proxy_set_header X-Frame-Options SAMEORIGIN;
       proxy_pass http://{{ item.jitsi_admin_docker_host | default('127.0.0.1') }}:{{ item.meetling_app_port | default('20001') }}/;
+
+    {% if item.meetling_redirect_404_to_m is defined and item.meetling_redirect_404_to_m %}
+      proxy_intercept_errors on;
+      error_page 404 = @redirect404;
+    }
+
+    location @redirect404 {
+        return 301 /m$request_uri;
+    {% endif %}
     }

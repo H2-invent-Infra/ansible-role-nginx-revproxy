@@ -21,7 +21,9 @@
     src: /etc/nginx/sites-available/{{ item.name }}.conf
     dest: /etc/nginx/sites-enabled/{{ item.name }}
     state: link
-  with_items: "{{ nginx_revproxy_sites }}"
+  with_items:
+    - "{{ nginx_revproxy_sites }}"
+    - "{{ nginx_revproxy_additional_sites }}"
   when:
     - (nginx_applications is not defined) or (item.name in nginx_applications)
   notify: Reload Nginx

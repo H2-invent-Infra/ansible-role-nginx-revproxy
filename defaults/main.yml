@@ -40,6 +40,8 @@ nginx_revproxy_sites:
     root:
     index:
 
+nginx_revproxy_additional_sites: []
+
 nginx_revproxy_streams_enabled: false
 nginx_revproxy_streams_port: 443
 nginx_revproxy_streams:
