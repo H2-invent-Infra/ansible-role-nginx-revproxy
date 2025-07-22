@@ -36,7 +36,7 @@ __nginx_default_locations:
 
   - |
     {% if item.meetling_livekit_middleware is defined %}
-    location ~ ^/{{ item.meetling_livekit_middleware }}/(.*)(\.pem|\.js|\.css|\.png|\.wasm|\.tflite)$ {
+    location ~ ^/{{ item.meetling_livekit_middleware }}/(.*)(\.pem|\.js|\.css|\.png|\.wasm|\.tflite|\.wav|\.mp3|\.mp4)$ {
       proxy_pass http://{{ item.jitsi_admin_docker_host | default('127.0.0.1') }}:{{ item.meetling_livekit_middleware_port | default('20003') }}/$1$2;
     }
     location /{{ item.meetling_livekit_middleware }}/ {
