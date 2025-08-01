@@ -94,6 +94,14 @@ __nginx_default_locations:
     {% endif %}
 
   - |
+    {% if item.meetling_external_m_page is defined %}
+    location = /m {
+      proxy_pass http://{{ item.jitsi_admin_docker_host | default('127.0.0.1') }}:{{ item.meetling_app_port | default('20001') }}/theme{{ item.meetling_external_m_page }};
+      proxy_set_header Host $http_host;
+    }
+    {% endif %}
+
+  - |
     location / {
       gzip off;
       client_max_body_size {{ item.client_max_body_size | default('50M') }};

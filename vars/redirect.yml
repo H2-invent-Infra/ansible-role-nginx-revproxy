@@ -1,0 +1,7 @@
+__nginx_default_root: /var/www/{{ name }}/current/public
+__nginx_default_index: index.html
+__nginx_default_locations:
+  - |
+   location ~ ^{{ item.redirect_location | default('') }}/(.*)$ {
+      return 301 {{ item.redirect_target }}/$1;
+    }
