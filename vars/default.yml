@@ -23,6 +23,8 @@ __nginx_default_locations:
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
       proxy_set_header X-Frame-Options SAMEORIGIN;
+      proxy_ssl_server_name on;
+      proxy_ssl_name $host;
       {% endif -%}
       proxy_pass {{ item.backend_protocol | default('http') }}://{{ item.name }}_backend;
     }
