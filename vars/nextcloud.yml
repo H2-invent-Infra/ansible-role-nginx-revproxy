@@ -1,5 +1,5 @@
-__nginx_default_root: /var/www/html
-__nginx_default_index: index.html
+__nginx_default_root: /var/www/nextcloud
+__nginx_default_index: index.php
 __nginx_default_locations:
   - |
     location = / {
