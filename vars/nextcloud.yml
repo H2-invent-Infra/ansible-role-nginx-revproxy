@@ -1,5 +1,11 @@
 __nginx_default_root: /var/www/nextcloud
 __nginx_default_index: index.php
+__nginx_default_maps:
+  - |
+    map $arg_v $asset_immutable {
+        "" "";
+    default "immutable";
+    }
 __nginx_default_locations:
   - |
     location = / {
@@ -59,7 +65,7 @@ __nginx_default_locations:
 
         fastcgi_param modHeadersAvailable true;
         fastcgi_param front_controller_active true;
-        fastcgi_pass unix:/var/run/php-fpm-{{ item.name }}.sock;
+        fastcgi_pass unix:/var/run/php-fpm-nextcloud.sock;
 
         fastcgi_intercept_errors on;
         fastcgi_request_buffering off;

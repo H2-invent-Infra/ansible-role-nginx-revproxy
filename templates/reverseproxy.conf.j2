@@ -3,6 +3,12 @@
 # Do NOT modify this file by hand!
 ################################################################################
 
+{% if __nginx_default_maps is defined %}
+{% for map in __nginx_default_maps %}
+{{ map }}
+{% endfor %}
+{% endif %}
+
 {% if item.upstreams is defined %}
 upstream {{ item.name }}_backend  {
 {% for upstream in item.upstreams %}
