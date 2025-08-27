@@ -96,6 +96,12 @@ server {
    ssl_prefer_server_ciphers on;
    ssl_session_cache shared:SSL:10m;
 
+{% if item.server_headers is defined %}
+{% for header in item.server_headers %}
+   {{ header }};
+{% endfor %}
+{% endif %}
+
 {% if item.server_settings is defined %}
 {% for setting in item.server_settings %}
    {{ setting }};
@@ -122,7 +128,7 @@ server {
 {% endif %}
 
 {% for location in item.locations | default(__nginx_default_locations) %}
-   {{ location | indent(4) }}
+   {{ location | indent(3) }}
 {% endfor %}
 
 

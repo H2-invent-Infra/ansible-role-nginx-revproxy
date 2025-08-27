@@ -3,10 +3,15 @@ __nginx_default_index: index.php
 __nginx_default_maps:
   - |
     map $arg_v $asset_immutable {
-        "" "";
     default "immutable";
     }
 __nginx_default_locations:
+  - |
+    # Add Includes for Nextcloud
+    types {
+        text/javascript mjs;
+    }
+    include mime.types;
   - |
     location = / {
         if ( $http_user_agent ~ ^DavClnt ) {
