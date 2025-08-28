@@ -6,7 +6,7 @@ __nginx_default_locations:
       proxy_set_header Host $host;
       proxy_set_header X_Real_IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_pass http://{{ item.jitsi_admin_docker_host | default('127.0.0.1') }}:20002/.well-known/mercure;
+      proxy_pass http://{{ item.jitsi_admin_docker_host | default('127.0.0.1') }}:{{ item.meetling_websocket_port | default('20002') }}/.well-known/mercure;
     }
 
   - |
