@@ -35,6 +35,12 @@ server {
 
    server_name    {{ item.domains | join(' ') }};
 
+   more_set_headers 'X-Server: powered by H2 invent';
+   more_set_headers 'X-Protection: High';
+   more_set_headers 'X-Location: Germany';
+   more_clear_headers 'x-powered-by';
+   more_clear_headers 'Server';
+
    root {{ item.root | default(__nginx_default_root) }};
    index {{ item.index | default(__nginx_default_index) }};
 
@@ -80,6 +86,12 @@ server {
 {% endfor %}
 
    server_name    {{ item.domains | join(' ') }};
+
+   more_set_headers 'X-Server: powered by H2 invent';
+   more_set_headers 'X-Protection: High';
+   more_set_headers 'X-Location: Germany';
+   more_clear_headers 'x-powered-by';
+   more_clear_headers 'Server';
 
    root {{ item.root | default(__nginx_default_root) }};
    index {{ item.index | default(__nginx_default_index) }};
